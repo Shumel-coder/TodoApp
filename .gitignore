@@ -1,0 +1,23 @@
+# Dependency directories
+node_modules/
+target/
+
+# Environment files
+.env
+*.env
+.env.*
+
+# IDE specific files
+.vscode/
+.idea/
+
+# Build outputs
+build/
+dist/
+
+# Logs
+*.log
+
+# Line ending configurations
+*.cmd text eol=crlf
+*.sh text eol=lf
