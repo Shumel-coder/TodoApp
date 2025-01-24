@@ -43,7 +43,7 @@ TodoApp is a full-stack application for managing tasks effectively. The applicat
 1. Clone the repository:
    ```bash
    git clone https://github.com/yourusername/TodoApp.git
-   cd TodoApp/backend
+   cd TodoApp/todo_app
    ```
 
 2. Configure the database:
