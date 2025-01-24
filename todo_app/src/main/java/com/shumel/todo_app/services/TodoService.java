@@ -38,6 +38,17 @@ public class TodoService {
     }
 
     public Todo updateTodo(Todo todo) {
-        return todoRepository.save(todo);
+        // Fetch the existing Todo from the database
+        Todo existingTodo = todoRepository.findById(todo.getId())
+                .orElseThrow(() -> new RuntimeException("Todo not found with id: " + todo.getId()));
+
+        // Update the fields
+        if (todo.getTask() != null) {
+            existingTodo.setTask(todo.getTask());
+        }
+        existingTodo.setCompleted(todo.getCompleted());
+
+        // Save the updated Todo
+        return todoRepository.save(existingTodo);
     }
 }
