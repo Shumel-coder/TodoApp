@@ -16,12 +16,10 @@ TodoApp is a full-stack application for managing tasks effectively. The applicat
 - React
 - TypeScript
 - Axios (for API calls)
-- Material-UI (for styling, optional)
 
 ### Backend
 - Java
 - Spring Boot
-- Spring Security (for authentication and authorization)
 - Hibernate (for ORM)
 - MySQL/PostgreSQL (for database)
 
