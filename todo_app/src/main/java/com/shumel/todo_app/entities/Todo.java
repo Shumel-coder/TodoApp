@@ -1,8 +1,7 @@
 package com.shumel.todo_app.entities;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import jakarta.persistence.*;
-
-
 
 @Entity
 @Table(name = "todo")
@@ -18,12 +17,18 @@ public class Todo {
     @Column(name = "completed", nullable = false)
     private Boolean completed = false;
 
-    public Todo() {
-    }
+    @ManyToOne(fetch = FetchType.EAGER)
+    @JoinColumn(name = "user_id", nullable = false)
+    @JsonIgnoreProperties("todos")
 
-    public Todo(String task, Boolean completed) {
+    private User user;
+
+    public Todo() {}
+
+    public Todo(String task, Boolean completed, Long userId) {
         this.task = task;
         this.completed = completed;
+        this.user = user;
     }
 
     public Long getId() {
@@ -48,5 +53,13 @@ public class Todo {
 
     public void setCompleted(Boolean completed) {
         this.completed = completed;
+    }
+
+    public User getUser() {
+        return this.user;
+    }
+
+    public void setUser(User user) {
+        this.user = user;
     }
 }

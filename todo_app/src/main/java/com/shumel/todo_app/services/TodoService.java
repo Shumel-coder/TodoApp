@@ -1,54 +1,57 @@
 package com.shumel.todo_app.services;
 
 import com.shumel.todo_app.entities.Todo;
+import com.shumel.todo_app.entities.User;
 import com.shumel.todo_app.repositories.TodoRepository;
+import com.shumel.todo_app.repositories.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
-import java.util.Optional;
+
 
 @Service
 public class TodoService {
     @Autowired
     private TodoRepository todoRepository;
 
+    @Autowired
+    private UserRepository userRepository;
+
     public Todo addTodo(Todo todo) {
+        // Ensure user is loaded from database
+        User user = userRepository.findById(todo.getUser().getId())
+                .orElseThrow(() -> new RuntimeException("User not found"));
+
+        todo.setUser(user);
         return todoRepository.save(todo);
     }
 
-    public List<Todo> getAllTodos() {
-        return todoRepository.findAll();
+    public List<Todo> getTodosByUser(Long userId) {
+        return todoRepository.findByUserId(userId);
     }
 
-    public List<Todo> getAllCompleted() {
-        return todoRepository.findByCompletedTrue();
+    public List<Todo> getCompletedTodosByUser(Long userId) {
+        return todoRepository.findByUserIdAndCompletedTrue(userId);
     }
 
-    public List<Todo> getAllIncomplete() {
-        return todoRepository.findByCompletedFalse();
-    }
-
-    public Optional<Todo> findById(Long id) {
-        return todoRepository.findById(id);
-    }
-
-    public void deleteTodo(Long id) {
-        todoRepository.deleteById(id);
+    public List<Todo> getIncompleteTodosByUser(Long userId) {
+        return todoRepository.findByUserIdAndCompletedFalse(userId);
     }
 
     public Todo updateTodo(Todo todo) {
-        // Fetch the existing Todo from the database
         Todo existingTodo = todoRepository.findById(todo.getId())
-                .orElseThrow(() -> new RuntimeException("Todo not found with id: " + todo.getId()));
+                .orElseThrow(() -> new RuntimeException("Todo not found"));
 
-        // Update the fields
         if (todo.getTask() != null) {
             existingTodo.setTask(todo.getTask());
         }
         existingTodo.setCompleted(todo.getCompleted());
 
-        // Save the updated Todo
         return todoRepository.save(existingTodo);
+    }
+
+    public void deleteTodo(Long id) {
+        todoRepository.deleteById(id);
     }
 }

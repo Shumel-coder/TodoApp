@@ -1,15 +1,26 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
+import Login from "./Login";
 import "./App.css";
 
-// Define Todo type
 interface Todo {
   id: number;
   task: string;
   completed: boolean;
+  user: {
+    id: number;
+    username: string;
+  };
+}
+
+interface User {
+  id: number;
+  username: string;
+  password: string;
 }
 
 const App: React.FC = () => {
+  const [user, setUser] = useState<User | null>(null);
   const [todos, setTodos] = useState<Todo[]>([]);
   const [task, setTask] = useState<string>("");
   const [searchFilter, setSearchFilter] = useState<string>("all");
@@ -17,55 +28,71 @@ const App: React.FC = () => {
   const API_BASE = "http://localhost:8080/api/todos";
 
   // Fetch Todos
+  useEffect(() => {
+    fetchTodos();
+  }, [searchFilter, user]);
+
   const fetchTodos = async () => {
+    if (!user) return;
     try {
-      const response = await axios.get<Todo[]>(
-        searchFilter === "completed"
-          ? `${API_BASE}/completed`
-          : searchFilter === "incomplete"
-          ? `${API_BASE}/incomplete`
-          : `${API_BASE}/`
-      );
+      console.log(`Fetching todos for user ${user.id}`);
+      const response = await axios.get<Todo[]>(`${API_BASE}/user/${user.id}`);
+      console.log("Fetched todos:", response.data);
       setTodos(response.data);
     } catch (error) {
       console.error("Error fetching todos", error);
     }
   };
 
-  useEffect(() => {
-    fetchTodos();
-  }, [searchFilter]);
-
   const addTodo = async () => {
-    if (!task.trim()) {
-      alert("Task is required");
+    if (!task.trim() || !user) {
+      console.error("Task or user is missing");
       return;
     }
 
+    console.log("Add todo payload:", {
+      task: task.trim(),
+      completed: false,
+      user: {
+        id: user.id,
+        username: user.username,
+      },
+    });
+
     try {
-      const response = await axios.post<Todo>(`${API_BASE}/`, {
-        task: task.trim(),
-        completed: false,
-      });
+      const response = await axios.post<Todo>(
+        "http://localhost:8080/api/todos/",
+        {
+          task: task.trim(),
+          completed: false,
+          user: {
+            id: user.id,
+            username: user.username,
+          },
+        }
+      );
 
-      // Update the state with the new Todo
+      console.log("Added todo:", response.data);
       setTodos((prev) => [...prev, response.data]);
-
-      // Clear the input field
       setTask("");
-    } catch (error) {
-      console.error("Error adding todo:", error);
-      alert("Failed to add task. Please try again.");
+    } catch (error: any) {
+      console.error("Add todo error:", error);
+      console.error("Error details:", error.response?.data);
     }
   };
 
   // Update Todo
   const updateTodo = async (id: number, updatedTodo: Partial<Todo>) => {
     try {
+      const todoToUpdate = todos.find((t) => t.id === id);
+      if (!todoToUpdate) return;
+
       const response = await axios.put<Todo>(`${API_BASE}/${id}`, {
+        ...todoToUpdate,
         ...updatedTodo,
-        id,
+        user: { id: user?.id },
       });
+
       setTodos((prev) =>
         prev.map((todo) => (todo.id === id ? response.data : todo))
       );
@@ -84,11 +111,17 @@ const App: React.FC = () => {
     }
   };
 
+  // If not logged in, show login component
+  if (!user) {
+    return <Login onLogin={(loggedInUser) => setUser(loggedInUser)} />;
+  }
+
   return (
     <div className="app-container">
       <h1>Todo App</h1>
+      <p>Welcome, {user.username}</p>
+      <button onClick={() => setUser(null)}>Logout</button>
 
-      {/* Add Todo Form */}
       <div className="add-todo-container">
         <input
           type="text"
@@ -99,7 +132,6 @@ const App: React.FC = () => {
         <button onClick={addTodo}>Add</button>
       </div>
 
-      {/* Filter Todos */}
       <select
         value={searchFilter}
         onChange={(e) => setSearchFilter(e.target.value)}
@@ -109,7 +141,6 @@ const App: React.FC = () => {
         <option value="incomplete">Incomplete</option>
       </select>
 
-      {/* Todo List */}
       <div>
         {todos.map((todo) => (
           <div
