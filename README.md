@@ -1,6 +1,6 @@
 # TodoApp
 
-TodoApp is a full-stack application for managing tasks effectively. The application features a responsive frontend built with React and TypeScript and a robust backend powered by Java and Spring Boot. With features like user login, CRUD operations for todos, and a clean user interface, TodoApp is designed to make task management simple and intuitive.
+TodoApp is a full-stack application for managing tasks effectively. The application features a responsive frontend built with React and TypeScript and a robust backend powered by Java and Spring Boot. With features like user login, CRUD operations for todos, and a clean user interface, TodoApp is designed to make task management simple and intuitive. Live site : https://todoappfrontend-iljs.vercel.app/ (to register enter a username and password and click register. Should log you in automatically.)
 
 ## Features
 
